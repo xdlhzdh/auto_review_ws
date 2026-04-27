@@ -1,0 +1,20 @@
+{
+  "name": "auto_review_ws",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.13.4",
+    "cheerio": "^1.0.0",
+    "commander": "^13.1.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.5.3",
+    "puppeteer": "^24.6.1",
+    "shiki": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3"
+  }
+}

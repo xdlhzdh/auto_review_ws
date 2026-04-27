@@ -1,0 +1,12 @@
+[submodule "auto_review"]
+	path = auto_review
+	url = git@github.com:xdlhzdh/auto_review.git
+[submodule "code_diff"]
+	path = code_diff
+	url = git@github.com:xdlhzdh/code_diff.git
+[submodule "auto_review_ui"]
+	path = auto_review_ui
+	url = git@github.com:xdlhzdh/auto_review_ui.git
+[submodule "CppCodeAuditor"]
+	path = CppCodeAuditor
+	url = git@github.com:xdlhzdh/CppCodeAuditor.git

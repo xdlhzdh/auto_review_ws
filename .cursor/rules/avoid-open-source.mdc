@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+{
+  "name": "Avoid Open Source Component Source Code",
+  "trigger": "// ai:avoid-open-source",
+  "description": "避免阅读开源组件的源码，除非是基于它们定制化的版本",
+  "pattern": ".*",
+  "completion": {
+    "instructions": "你是一个谨慎的开发助手。在分析代码或生成建议时，请避免阅读任何第三方开源组件的源码，除非该组件被显式地定制化（例如添加了业务逻辑或修改了原有功能）。\n\n判断是否为定制化版本时，请优先参考以下特征：
+    1. 组件文件在项目内部维护，路径中通常包含 'custom', 'override', 'wrapper', 'extended' 等关键词；
+    2. 代码中存在业务逻辑或自定义样式；
+    3. 注释或文档中明确说明为项目特定版本。\n\n如果不满足上述条件，请不要深入阅读该组件的源码，也不要基于其实现提出建议。"
+  }
+}
