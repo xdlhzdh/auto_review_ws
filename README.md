@@ -15,8 +15,8 @@ git clone --recurse-submodules git@github.com:xdlhzdh/auto_review_ws.git
 
 | Submodule | Description |
 |-----------|-------------|
-| [`auto_review`](https://github.com/xdlhzdh/auto_review) | LLM review engine (Puppeteer + TypeScript) |
-| [`auto_review_ui`](https://github.com/xdlhzdh/auto_review_ui) | Web dashboard (Next.js 15 + PostgreSQL) |
+| [`auto_review`](https://github.com/xdlhzdh/auto_review) | Legacy pytest + SeleniumBase review script (`test_company_gpt.py`); not used by the main pipeline |
+| [`auto_review_ui`](https://github.com/xdlhzdh/auto_review_ui) | Web dashboard (Next.js 15 + PostgreSQL) and production LLM review engine (`scripts/auto_review.ts`) |
 | [`code_diff`](https://github.com/xdlhzdh/code_diff) | C/C++ diff extractor (Python, function-level granularity) |
 | [`CppCodeAuditor`](https://github.com/xdlhzdh/CppCodeAuditor) | LLM audit prompt library for C/C++ |
 
@@ -41,19 +41,19 @@ Root-level scripts orchestrate the full pipeline across all submodules:
 │   Shell scripts  ·  Python  ·  TypeScript (cron)    │
 └───────────────────────┬─────────────────────────────┘
                         │
-         ┌──────────────┼──────────────┐
-         ▼              ▼              ▼
-  ┌─────────────┐ ┌──────────┐ ┌────────────────┐
-  │  code_diff  │ │auto_review│ │  auto_review_ui│
-  │  (Python)   │ │  (TS/Node)│ │  (Next.js 15)  │
-  └─────────────┘ └──────────┘ └───────┬────────┘
-                        │              │
-                        ▼              ▼
-                 ┌─────────────┐  ┌──────────────┐
-                 │  LLM Backend│  │  PostgreSQL   │
-                 │ CompanyGPT /│  │  (Prisma 6)   │
-                 │ GH Copilot  │  └──────────────┘
-                 └─────────────┘
+         ┌──────────────┼──────────────────┐
+         ▼              ▼                  ▼
+  ┌─────────────┐ ┌─────────────────────────────┐
+  │  code_diff  │ │       auto_review_ui        │
+  │  (Python)   │ │ Next.js 15 + auto_review.ts │
+  └─────────────┘ └──────────────┬──────────────┘
+                                 │
+                                 ▼
+                          ┌─────────────┐  ┌──────────────┐
+                          │  LLM Backend│  │  PostgreSQL   │
+                          │ CompanyGPT /│  │  (Prisma 6)   │
+                          │ GH Copilot  │  └──────────────┘
+                          └─────────────┘
 ```
 
 ### Tech Stack
@@ -78,10 +78,16 @@ Root-level scripts orchestrate the full pipeline across all submodules:
 - Splits change blocks at **function granularity**, producing structured JSON for LLM consumption
 - Filters out test directories and third-party dependencies
 
-### 2. LLM Review Engine (`auto_review`)
+### 2. LLM Review Engine
+
+**Production path** — `auto_review_ui/scripts/auto_review.ts`, invoked by root shell scripts (`run_review.sh`, `run_review_and_update_db.sh`):
 - Builds prompts from audit rules (e.g. multi-threading safety, C++ best practices) combined with repo-level tags
 - Drives the LLM via Puppeteer; supports both internal GPT and GitHub Copilot
 - Produces structured HTML reports; `parse_review.py` converts them to JSON and persists to DB; optionally posts comments back to Gerrit
+
+**Legacy path** — `auto_review/test_company_gpt.py` (pytest + SeleniumBase):
+- Same purpose as the TypeScript engine, but implemented in Python; **not wired into the main pipeline**
+- Run manually or from the IDE test panel, e.g. `cd auto_review && pytest test_company_gpt.py --commit-functions <path> --output <path>`
 
 ### 3. Scheduling & Batch Processing
 - **Scheduled batch mode**: Shell scripts iterate over cloned Git repos, with file-lock + `LastCommit` for idempotent incremental execution, driven by cron

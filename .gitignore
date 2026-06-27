@@ -52,3 +52,6 @@ __pycache__/
 
 # local backup after submodule migration
 .CppCodeAuditor.bak/
+
+# ReCode local database
+.recode
